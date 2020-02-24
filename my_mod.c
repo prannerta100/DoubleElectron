@@ -123,7 +123,7 @@ w *= exp(tmp) * parity(j1-j2-m3);
 return w;
 }
 
-double complex CAx_aDiag(int l, int pI1, int pI2, int qI1, int qI2, int II)
+double complex CAx_aDiagDiff(int l, int pI1, int pI2, int qI1, int qI2, int II)
 {
     int dpI, dqI;
 	double tmp;
@@ -143,7 +143,29 @@ double complex CAx_aDiag(int l, int pI1, int pI2, int qI1, int qI2, int II)
     return parity(dpI) * sqrt(2*(double)l+1) * Cw3jmatlab(1,1,l,0,dpI,-dpI) * S_A;
 }
 
-double complex CAx_aOffDiag(int l, int pI1, int pI2, int qI1, int qI2, int II)
+double complex CAx_aOffDiagDiff(int l, int pI1, int pI2, int qI1, int qI2, int II)
+{
+    int dpI, dqI;
+    double tmp;
+    double complex K_I, S_A;
+    dpI= pI1 - pI2;
+    dqI= qI1 - qI2;
+    if(abs(dpI) != abs(dqI))
+        return 0.0+0.0*I;
+    tmp= qI1 * dqI + pI1 * dpI;
+    K_I = csqrt(II * (II + 1) - tmp * (tmp - 2)/4.0);
+    if(dpI==0){
+        S_A = (complex) qI1/2;
+    }
+    else{
+        S_A = -dpI * K_I/sqrt(8);
+    }
+    return parity(dpI) * sqrt(2*(double)l+1) * Cw3jmatlab(1,1,l,0,dpI,-dpI) * S_A; //casting as complex to impose uniformity
+}
+
+
+
+double complex CAx_aOffDiagSum(int l, int pI1, int pI2, int qI1, int qI2, int II)
 {
     int dpI, dqI;
     double tmp;
@@ -155,12 +177,31 @@ double complex CAx_aOffDiag(int l, int pI1, int pI2, int qI1, int qI2, int II)
     tmp= qI1 * dqI + pI1 * dpI;
     K_I = csqrt(II * (II + 1) - tmp * (tmp - 2)/4.0);
     if(dpI==0){
-        S_A = (complex) pI1/2;
+        S_A = (complex) qI1/2;
     }
     else{
-        S_A = -dqI * K_I/sqrt(8);
+        S_A = -dpI * K_I/sqrt(8);
     }
-    return parity(dpI) * sqrt(2*(double)l+1) * Cw3jmatlab(1,1,l,0,dpI,-dpI) * S_A;
+    return parity(dpI) * sqrt(2*(double)l+1) * Cw3jmatlab(1,1,l,0,dpI,-dpI) * S_A; //casting as complex to impose uniformity
+}
+
+double complex CAx_gOffDiagDiff(int l, int pI1, int pI2, int qI1, int qI2, int II)
+{
+    int dpI, dqI;
+    dpI= pI1 - pI2;
+    dqI= qI1 - qI2;
+    if(dpI!= 0 || dqI!=0)
+        return 0.0+0.0*I;
+    return (complex)sqrt(2*(double)l+1) * Cw3jmatlab(1,1,l,0,0,0); //casting as complex to impose uniformity
+}
+
+double complex CAx_gOffDiagSum(int l, int pI1, int pI2, int qI1, int qI2, int II)
+{
+    int dqI;
+    dqI= qI1 - qI2;
+    if(pI1!= 0 || pI2!=0 || dqI!=0)
+        return 0.0+0.0*I;
+    return (complex)sqrt(2*(double)l+1) * Cw3jmatlab(1,1,l,0,0,0); //casting as complex to impose uniformity
 }
 
 static PyObject* w3jmatlab(PyObject* self, PyObject* args)
@@ -222,7 +263,7 @@ static PyObject* dlkm(PyObject* self, PyObject* args)
 //    return Py_BuildValue("D", (Py_complex) Cdlkm(l,k,m,alpha,beta,gamma));
 }
 
-static PyObject* Ax_aDiag(PyObject* self, PyObject* args)
+static PyObject* Ax_aDiagDiff(PyObject* self, PyObject* args)
 {
     // instantiate our `j,m` values
 	int l, pI1, pI2, qI1, qI2, II;
@@ -231,12 +272,12 @@ static PyObject* Ax_aDiag(PyObject* self, PyObject* args)
     if(!PyArg_ParseTuple(args,"iiiiii",&l,&pI1,&pI2,&qI1,&qI2,&II))
         return NULL;
     // return our computed fib number
-    aa = CAx_aDiag(l, pI1, pI2, qI1, qI2, II);
+    aa = CAx_aDiagDiff(l, pI1, pI2, qI1, qI2, II);
     return PyComplex_FromDoubles(creal(aa),cimag(aa));
 //    return Py_BuildValue("D", (Py_complex) Cdlkm(l,k,m,alpha,beta,gamma));
 }
 
-static PyObject* Ax_aOffDiag(PyObject* self, PyObject* args)
+static PyObject* Ax_aOffDiagDiff(PyObject* self, PyObject* args)
 {
     // instantiate our `j,m` values
     int l, pI1, pI2, qI1, qI2, II;
@@ -245,7 +286,51 @@ static PyObject* Ax_aOffDiag(PyObject* self, PyObject* args)
     if(!PyArg_ParseTuple(args,"iiiiii",&l,&pI1,&pI2,&qI1,&qI2,&II))
         return NULL;
     // return our computed fib number
-    aa = CAx_aOffDiag(l, pI1, pI2, qI1, qI2, II);
+    aa = CAx_aOffDiagDiff(l, pI1, pI2, qI1, qI2, II);
+    return PyComplex_FromDoubles(creal(aa),cimag(aa));
+//    return Py_BuildValue("D", (Py_complex) Cdlkm(l,k,m,alpha,beta,gamma));
+}
+
+
+static PyObject* Ax_aOffDiagSum(PyObject* self, PyObject* args)
+{
+    // instantiate our `j,m` values
+    int l, pI1, pI2, qI1, qI2, II;
+    complex aa;
+    // if our `j1,j2,j3,m1,m2,m3` values
+    if(!PyArg_ParseTuple(args,"iiiiii",&l,&pI1,&pI2,&qI1,&qI2,&II))
+        return NULL;
+    // return our computed fib number
+    aa = CAx_aOffDiagSum(l, pI1, pI2, qI1, qI2, II);
+    return PyComplex_FromDoubles(creal(aa),cimag(aa));
+//    return Py_BuildValue("D", (Py_complex) Cdlkm(l,k,m,alpha,beta,gamma));
+}
+
+static PyObject* Ax_gOffDiagDiff(PyObject* self, PyObject* args)
+{
+    // instantiate our `j,m` values
+    int l, pI1, pI2, qI1, qI2, II;
+    complex aa;
+    // if our `j1,j2,j3,m1,m2,m3` values
+    if(!PyArg_ParseTuple(args,"iiiiii",&l,&pI1,&pI2,&qI1,&qI2,&II))
+        return NULL;
+    // return our computed fib number
+    aa = CAx_gOffDiagDiff(l, pI1, pI2, qI1, qI2, II);
+    return PyComplex_FromDoubles(creal(aa),cimag(aa));
+//    return Py_BuildValue("D", (Py_complex) Cdlkm(l,k,m,alpha,beta,gamma));
+}
+
+
+static PyObject* Ax_gOffDiagSum(PyObject* self, PyObject* args)
+{
+    // instantiate our `j,m` values
+    int l, pI1, pI2, qI1, qI2, II;
+    complex aa;
+    // if our `j1,j2,j3,m1,m2,m3` values
+    if(!PyArg_ParseTuple(args,"iiiiii",&l,&pI1,&pI2,&qI1,&qI2,&II))
+        return NULL;
+    // return our computed fib number
+    aa = CAx_gOffDiagSum(l, pI1, pI2, qI1, qI2, II);
     return PyComplex_FromDoubles(creal(aa),cimag(aa));
 //    return Py_BuildValue("D", (Py_complex) Cdlkm(l,k,m,alpha,beta,gamma));
 }
@@ -255,8 +340,11 @@ static PyMethodDef myMethods[] = {
     { "Cfib", fib, METH_VARARGS, "Prints Fib Nums" },
     { "w3jmatlabC", w3jmatlab, METH_VARARGS, "Wig 3j- 6 args, j123,m123" },
     { "dlkmC", dlkm, METH_VARARGS, "dlkm 6 args l,k,m,al,be,ga" },
-    { "Ax_aDiagC", Ax_aDiag, METH_VARARGS, "Ax_aDiag 6 args l,pI1,pI2,qI1,qI2,I" },
-    { "Ax_aOffDiagC", Ax_aOffDiag, METH_VARARGS, "Ax_aOffDiag 6 args l,pI1,pI2,qI1,qI2,I" },
+    { "Ax_aDiagDiffC", Ax_aDiagDiff, METH_VARARGS, "Ax_aDiff 6 args l,pI1,pI2,qI1,qI2,I" },
+    { "Ax_aOffDiagDiffC", Ax_aOffDiagDiff, METH_VARARGS, "Ax_aDiff 6 args l,pI1,pI2,qI1,qI2,I" },
+    { "Ax_aOffDiagSumC", Ax_aOffDiagSum, METH_VARARGS, "Ax_aSum 6 args l,pI1,pI2,qI1,qI2,I" },
+    { "Ax_gOffDiagDiffC", Ax_gOffDiagDiff, METH_VARARGS, "Ax_gDiff 6 args l,pI1,pI2,qI1,qI2,I" },
+    { "Ax_gOffDiagSumC", Ax_gOffDiagSum, METH_VARARGS, "Ax_gSum 6 args l,pI1,pI2,qI1,qI2,I" },
     { NULL, NULL, 0, NULL }
 };
 
