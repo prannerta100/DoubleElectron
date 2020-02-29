@@ -3,7 +3,7 @@
 from __future__ import division
 import numpy as np
 import math
-from scipy.sparse import coo_matrix
+from scipy.sparse import coo_matrix , csr_matrix
 from scipy.sparse.linalg import gmres
 #from pymatsolver import Pardiso
 from scipy import io
@@ -18,7 +18,7 @@ import sys
 R = [5.0e4, 5.0e4, 1.0e5] # [5.0e8, 5.0e8, 1.0e9]
 g = [2.0087, 2.0057, 2.0021] #g factors
 A = [6, 6, 36] #Gauss
-B0 = 3300 #Gauss
+B0 = 3300 #3300 #Gauss
 g0 = 2.0021 #free e g factor
 
 axialA = (A[0] == A[1]) #check if g axial
@@ -113,7 +113,7 @@ def indgen(Lemax, Lomax, Kmax, Mmax, ipnmx):
     return ndimo, ndimd, ind_offdiag, ind_diag
     
 print("\n")
-ndimo, ndimd, ind_offdiag, ind_diag = indgen(8, 7, 4, 3, 2)   #(75, 51, 25, 2, 2) #(30, 21, 15, 10, 2)
+ndimo, ndimd, ind_offdiag, ind_diag = indgen(8, 7, 4, 3, 2) #(75, 51, 25, 2, 2) #(30, 21, 15, 10, 2)
 
 np.savetxt('ind_offdiag.txt',ind_offdiag,fmt='%d')
 #from dlkmo import *
@@ -138,24 +138,25 @@ print(stp-stt, ' seconds')
 #np.dot(stvx.T,np.matmul(matx,stvx))
 #print(stvx.shape)
 
-#NGRD=512
-#shiftr=0.2 #Gauss
-#data=np.zeros((NGRD,2))
-#ci=(0+1j)
-#rnge=100 #Gauss
-#for j in range(NGRD):
-#    shift=np.complex(shiftr,-rnge+j*2*rnge/(NGRD-1)) #in Gauss
-#    op=matx+shift*iden
-#    x, info = gmres(op,stvx)
-#    #print('x.shape',x.shape)
-#    data[j][0]=-rnge+j*2*rnge/(NGRD-1)
-#    #print(np.vdot(stvx,x).shape)
-#    data[j][1]=np.vdot(stvx,x)
-#np.savetxt("out_spec.txt",np.concatenate((data,),axis=1))
+NGRD=512
+shiftr=0.2 #Gauss
+data=np.zeros((NGRD,2))
+ci=(0+1j)
+rnge=100 #Gauss
+for j in range(NGRD):
+    shift=np.complex(shiftr,-rnge+j*2*rnge/(NGRD-1)) #in Gauss
+    op=matx+shift*iden
+    x, info = gmres(op,stvx)
+    #print('x.shape',x.shape)
+    data[j][0]=-rnge+j*2*rnge/(NGRD-1)
+    #print(np.vdot(stvx,x).shape)
+    data[j][1]=np.real(np.vdot(stvx,x))
+np.savetxt("out_spec.txt",data)
 
 #sys.exit()
 print('OffDiag space matrix')
-with open('matrx_imag.mtxx0') as file:
+#with open('matrx_imag.mtxx0') as file:
+with open('matlab_i.mtxx') as file:
     array2d = [[digit for digit in line.split()] for line in file]
 I = [0] * len(array2d)
 J = [0] * len(array2d)
@@ -176,6 +177,7 @@ err = err.tocoo()
 print(err)
 print(err.shape)
 io.mmwrite('diffmat.txt',err)
+print('Sym_check_matxi',np.max(np.abs(matxi-csr_matrix.transpose(matxi))))
 #print(np.max(np.abs(a-3300 * iden)))
 
 print('Diag space matrix')
@@ -192,5 +194,6 @@ a = -coo_matrix((V,(I,J))) #because the code does \Gamma "-" i L
 #np.savetxt('diffmat.txt',(np.abs(a-mm)>1e-10)-1+1,fmt='%d')
 #np.savetxt('mat1.txt',np.abs(mm))
 print(np.max(np.abs(a-matzi)))
+io.mmwrite('matzi.txt',matzi.tocoo())
 #print(np.max(np.imag(matzi)))
 

@@ -74,7 +74,7 @@ def SpinHamiltonianSuperoperatorDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad, a
         #if pS1 != 0 or qS1 != 1:
         #    raise ValueError("wrong routine used, check index list again")
             
-        for j in range(i+1):
+        for j in range(ndim):
             L2,M2,K2,jM2,jK2,pI2,qI2,pS2,qS2 = ind_arr[j]
             #print(L1,M1,K1,jM1,jK1,pI1,qI1,pS1,qS1)
             #if pS2 != 0 or qS2 != 1:
@@ -87,7 +87,7 @@ def SpinHamiltonianSuperoperatorDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad, a
                 mat[i,j] = NormFacL(L1,L2) * NormFacK(K1,K2) * par(M1+K1) * \
                         sum([R_a(l,jK1,jK2,L1,L2,K1,K2) * (w3jmatlabC(L1,l,L2,M1,M2-M1,-M2)) * \
                              Ax_aDiagDiffC(l,pI1,pI2,qI1,qI2,I) * dlkmC(l,dpI,M1-M2,0,psi,0) for l in [0,2]]) 
-                mat[j,i] = mat[i,j]
+#                mat[j,i] = mat[i,j]
     
     mat = mat.tocsr()
     return mat
@@ -160,7 +160,7 @@ def SpinHamiltonianSuperoperatorOffDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad
         #if pS1 != 0 or qS1 != 1:
         #    raise ValueError("wrong routine used, check index list again")
             
-        for j in range(i+1):
+        for j in range(ndim):
             L2,M2,K2,jM2,jK2,pI2,qI2,pS2,qS2 = ind_arr[j]
             #print(L1,M1,K1,jM1,jK1,pI1,qI1,pS1,qS1)
             #if pS2 != 0 or qS2 != 1:
@@ -180,7 +180,7 @@ def SpinHamiltonianSuperoperatorOffDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad
                             (w3jmatlabC(L1,l,L2,M1,M2-M1,-M2) * B0 * Ax_gOffDiagDiffC(l,pI1,pI2,qI1,qI2,I) * dlkmC(l,dpI,M1-M2,0,psi,0) + jM2 * par(L2+M2) * \
                              w3jmatlabC(L1,l,L2,M1,-M2-M1,M2) * B0 * Ax_gOffDiagSumC(l,pI1,pI2,qI1,qI2,I) * dlkmC(l,pI1+pI2,M1+M2,0,psi,0))  \
                              for l in [0,2]]) )
-                mat[j,i] = mat[i,j]
+#                mat[j,i] = mat[i,j]
     
     mat = mat.tocsr()
     return mat
