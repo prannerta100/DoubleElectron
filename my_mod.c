@@ -172,7 +172,7 @@ double complex CAx_aOffDiagSum(int l, int pI1, int pI2, int qI1, int qI2, int II
     double complex K_I, S_A;
     dpI= pI1 - pI2;
     dqI= qI1 - qI2;
-    if(abs(dpI) != abs(dqI) || pI2 != 0)  //from the dpI==m(=pI1+pI2), as on Pgs 5555 and 5534
+    if(abs(dpI) != abs(dqI) || pI2 != 0) //tried || pI1 != 0), restores symm but ruins further  //pI2 should =0 from the dpI==m(=pI1+pI2), as on Pgs 5555 and 5534
        return 0.0+0.0*I;
     tmp= qI1 * dqI + pI1 * dpI;
     K_I = csqrt(II * (II + 1) - tmp * (tmp - 2)/4.0);
