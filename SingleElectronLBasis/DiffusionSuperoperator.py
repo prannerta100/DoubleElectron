@@ -6,8 +6,8 @@ def DiffTensorNoPotential(ind_arr, R, g):
     cfac = g0 * betae / hbar
     #print(cfac)
     ndim = len(ind_arr)
-    if len(ind_arr[0]) != 9: #13: #LKM jM jK p,q 2 electrons, 2 nuclei; 2x4+5=13
-        raise "Problem with indices!"
+    if len(ind_arr[0]) != 8: #13: #LKM jM jK p,q 2 electrons, 2 nuclei; 2x4+5=13
+        raise NameError("Problem with indices!")
     mat = lil_matrix((ndim,ndim), dtype=float)
     Rx, Ry, Rz = R[0]/cfac, R[1]/cfac, R[2]/cfac
     #print(Rx,Ry,Rz)

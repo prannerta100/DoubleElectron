@@ -1,16 +1,16 @@
 #important: when I define a function within a function, I can use the variables passed to the first function
 import numpy as np
 import math
-from myModule import w3jmatlabC, dlkmC, Ax_aOffDiagDiffC, Ax_aOffDiagSumC, Ax_gOffDiagDiffC, Ax_gOffDiagSumC, Ax_aDiagDiffC 
+from LSymBasisModule import w3jmatlabC, dlkmC, Ax_aC, Ax_gC 
 from scipy.sparse import lil_matrix
 from common_defs import *
 
-def SpinHamiltonianSuperoperatorDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad, alm, bem, gam):
+def SpinHamiltonianSuperoperatorDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad, alm, bem, gam, Llist, Lstarts_diag):
     np.seterr(invalid='raise')
     g0 = sum(g)/3
     
     ndim = len(ind_arr)
-    if len(ind_arr[0]) != 9:
+    if len(ind_arr[0]) != 8:
         raise NameError("Problem with indices!")
     mat = lil_matrix((ndim,ndim),dtype=complex) #complex because of something, not sure what 
 
@@ -42,52 +42,51 @@ def SpinHamiltonianSuperoperatorDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad, a
         #    print(L1,l,L2,K1,K2-K1,-K2,Wig3j(L1,l,L2,K1,K2-K1,-K2),w3jmatlabC(L1,l,L2,K1,K2-K1,-K2))
         return (w3jmatlabC(L1,l,L2,K1,K2-K1,-K2)) * x1 + jK2 * par(L2+K2) * (w3jmatlabC(L1,l,L2,K1,-K2-K1,K2)) * x2
     
-    def R_g(l,jK1,jK2,L1,L2,K1,K2):
-        x1 = x2 = 0 
-        if l == 0:
-            #x1:G_g(l,jK1,jK2,K1-K2), x2:G_g(l,jK1,jK2,K1+K2)
-            if K1-K2 == 0:
-                x1 = (jK1==jK2) * np.real(F_gD_Conj0) + (jK1!=jK2) * jK1 * -np.imag(F_gD_Conj0)
-            if K1+K2 == 0:
-                x2 = (jK1==jK2) * np.real(F_gD_Conj0) + (jK1!=jK2) * jK1 * -np.imag(F_gD_Conj0)
-        if l == 2:
-            #x1:G_g(l,jK1,jK2,K1-K2), x2:G_g(l,jK1,jK2,K1+K2)
-            if abs(K1-K2) <=2:
-                x1 = (jK1==jK2) * np.real(F_gD_Conj2[K1-K2]) + (jK1!=jK2) * jK1 * -np.imag(F_gD_Conj2[K1-K2])
-            if abs(K1+K2) <=2:
-                x2 = (jK1==jK2) * np.real(F_gD_Conj2[K1+K2]) + (jK1!=jK2) * jK1 * -np.imag(F_gD_Conj2[K1+K2]) 
-        return (w3jmatlabC(L1,l,L2,K1,K2-K1,-K2)) * x1 + jK2 * par(L2+K2) * (w3jmatlabC(L1,l,L2,K1,-K2-K1,K2)) * x2
-        
 #    def Ax_g(l,pI1,pI2,qI1,qI2): 
 #        #assuming that the m in Ax(l,m) already satisfies m = pI1 - pI2, so this is not a general expression for Ax(l,m)
 #        return 0 #(no B0 term in diag space)
 
-    #assuming that the delta(p) in the expressions is pS1-pS2 + pI1-pI2, i.e., delta(pS)+delta(qS)
+    #the delta(p) in the expressions is pS1-pS2 + pI1-pI2, i.e., delta(pS)+delta(qS)
     #print(ald,bed,gad,alm,bem,gam, g, A)
     
     print(ndim,'x',ndim, 'matrix')
     #print(ald,bed,gad,alm,bem,gam, g, A)
     
-    for i in range(ndim):
-        L1,M1,K1,jM1,jK1,pI1,qI1,pS1,qS1 = ind_arr[i]
+    for i in range(ndim): #ndim is ndimd
+        L1,M1,K1,jK1,pI1,qI1,pS1,qS1 = ind_arr[i]
         #print(L1,M1,K1,jM1,jK1,pI1,qI1,pS1,qS1)
         #if pS1 != 0 or qS1 != 1:
         #    raise ValueError("wrong routine used, check index list again")
-            
-        for j in range(ndim):
-            L2,M2,K2,jM2,jK2,pI2,qI2,pS2,qS2 = ind_arr[j]
+        if L1-2 in Llist:
+            left_j = Lstarts_diag[Llist.index(L1-2)]
+        elif L1-1 in Llist:
+            left_j = Lstarts_diag[Llist.index(L1-1)]
+        else:
+            left_j = Lstarts_diag[Llist.index(L1)]
+        if L1+2 in Llist:
+            right_j = Lstarts_diag[min(Llist.index(L1+2)+1,len(Llist)-1)]
+        elif L1+1 in Llist:
+            right_j = Lstarts_diag[min(Llist.index(L1+1)+1,len(Llist)-1)]
+        else:
+            right_j = ndim
+        for j in range(ndim): #range(left_j,right_j): #define band, this will really speed up things! Think about the nbnd in CW nlsl matrll.f
+            L2,M2,K2,jK2,pI2,qI2,pS2,qS2 = ind_arr[j]
             #print(L1,M1,K1,jM1,jK1,pI1,qI1,pS1,qS1)
             #if pS2 != 0 or qS2 != 1:
             #    raise ValueError("wrong routine used, check index list again")
             dpI = pI1 - pI2
             dqI = qI1 - qI2
+            dpS = pS1 - pS2
+            dqS = qS1 - qS2
             #neglecting nuclear Zeeman 
             #check these conditions again, I put them to speed up, may not work if initial settings change
-            if abs(dpI) <=1 and abs(dpI)==abs(dqI) and abs(M2-M1) <=2:
+            #if abs(dpI) <=1 and abs(dpI)==abs(dqI) and abs(M2-M1) <=2: #this is from the original LMSym Lee1994 code
+            if abs(M2-M1) <=2:
                 mat[i,j] = NormFacL(L1,L2) * NormFacK(K1,K2) * par(M1+K1) * \
-                        sum([R_a(l,jK1,jK2,L1,L2,K1,K2) * (w3jmatlabC(L1,l,L2,M1,M2-M1,-M2)) * \
-                             Ax_aDiagDiffC(l,pI1,pI2,qI1,qI2,I) * dlkmC(l,dpI,M1-M2,0,psi,0) for l in [0,2]]) 
-#                mat[j,i] = mat[i,j]
+                        sum([R_a(l,jK1,jK2,L1,L2,K1,K2) * w3jmatlabC(L1,l,L2,M1,M2-M1,-M2) * \
+                             Ax_aC(l,pI1,pI2,qI1,qI2,pS1,pS2,qS1,qS2,I) * dlkmC(l,dpS+dpI,M1-M2,0,psi,0) for l in [0,2]]) 
+                #using Eva's 1982 paper
+#                mat[j,i] = mat[i,j] #forced symmetrization, shouldn't have to use it
     
     mat = mat.tocsr()
     return mat
@@ -100,7 +99,7 @@ def SpinHamiltonianSuperoperatorOffDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad
     g0 = sum(g)/3
     
     ndim = len(ind_arr)
-    if len(ind_arr[0]) != 9:
+    if len(ind_arr[0]) != 8:
         raise NameError("Problem with indices!")
     mat = lil_matrix((ndim,ndim),dtype=complex) #keeping it complex because of something, not sure what, likely the stuff in Axa_C, etc. 
 
@@ -155,32 +154,32 @@ def SpinHamiltonianSuperoperatorOffDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad
     #print(ald,bed,gad,alm,bem,gam, g, A)
     
     for i in range(ndim):
-        L1,M1,K1,jM1,jK1,pI1,qI1,pS1,qS1 = ind_arr[i]
+        L1,M1,K1,jK1,pI1,qI1,pS1,qS1 = ind_arr[i]
         #print(L1,M1,K1,jM1,jK1,pI1,qI1,pS1,qS1)
         #if pS1 != 0 or qS1 != 1:
         #    raise ValueError("wrong routine used, check index list again")
             
         for j in range(ndim):
-            L2,M2,K2,jM2,jK2,pI2,qI2,pS2,qS2 = ind_arr[j]
+            L2,M2,K2,jK2,pI2,qI2,pS2,qS2 = ind_arr[j]
             #print(L1,M1,K1,jM1,jK1,pI1,qI1,pS1,qS1)
             #if pS2 != 0 or qS2 != 1:
             #    raise ValueError("wrong routine used, check index list again")
             dpI = pI1 - pI2
             dqI = qI1 - qI2
+            dpS = pS1 - pS2
+            dqS = qS1 - qS2
 
             #neglecting nuclear Zeeman 
             #check the following conditions again, I put them to speed up, may not work if initial settings change
-            if abs(dpI) <=1 and abs(dpI)==abs(dqI) and (abs(M1-M2) <=2 or abs(M1+M2)<=2):
-                mat[i,j] = NormFacL(L1,L2) * NormFacK(K1,K2) * NormFacP(pI1,M1,pI2,M2) * par(M1+K1) * (\
-                        sum([R_a(l,jK1,jK2,L1,L2,K1,K2) * \
-                            (w3jmatlabC(L1,l,L2,M1,M2-M1,-M2) * Ax_aOffDiagDiffC(l,pI1,pI2,qI1,qI2,I) * dlkmC(l,dpI,M1-M2,0,psi,0) + jM2 * par(L2+M2) * \
-                             w3jmatlabC(L1,l,L2,M1,-M2-M1,M2) * Ax_aOffDiagSumC(l,pI1,pI2,qI1,qI2,I) * dlkmC(l,pI1+pI2,M1+M2,0,psi,0))  \
-                             for l in [0,2]]) +\
-                        sum([R_g(l,jK1,jK2,L1,L2,K1,K2) * \
-                            (w3jmatlabC(L1,l,L2,M1,M2-M1,-M2) * B0 * Ax_gOffDiagDiffC(l,pI1,pI2,qI1,qI2,I) * dlkmC(l,dpI,M1-M2,0,psi,0) + jM2 * par(L2+M2) * \
-                             w3jmatlabC(L1,l,L2,M1,-M2-M1,M2) * B0 * Ax_gOffDiagSumC(l,pI1,pI2,qI1,qI2,I) * dlkmC(l,pI1+pI2,M1+M2,0,psi,0))  \
-                             for l in [0,2]]) )
-#                mat[j,i] = mat[i,j]
+            i#if abs(dpI) <=1 and abs(dpI)==abs(dqI) and (abs(M1-M2) <=2 or abs(M1+M2)<=2):
+            if abs(M2-M1) <=2:
+                mat[i,j] = NormFacL(L1,L2) * NormFacK(K1,K2) * par(M1+K1) * (\
+                        sum([R_a(l,jK1,jK2,L1,L2,K1,K2) * w3jmatlabC(L1,l,L2,M1,M2-M1,-M2) * \
+                             Ax_aC(l,pI1,pI2,qI1,qI2,pS1,pS2,qS1,qS2,I) * dlkmC(l,dpS+dpI,M1-M2,0,psi,0) for l in [0,2]]) + \
+                        sum([R_g(l,jK1,jK2,L1,L2,K1,K2) * w3jmatlabC(L1,l,L2,M1,M2-M1,-M2) * \
+                             Ax_gC(l,pI1,pI2,qI1,qI2,pS1,pS2,qS1,qS2,I) * dlkmC(l,dpS+dpI,M1-M2,0,psi,0) for l in [0,2]]) \
+                        )
+#                mat[j,i] = mat[i,j]   #forcing symmetry in the matrix
     
     mat = mat.tocsr()
     return mat

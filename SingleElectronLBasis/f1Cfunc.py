@@ -22,34 +22,23 @@ A = [6, 6, 36] #Gauss
 B0 = 3300 #3300 #Gauss
 g0 = 2.0021 #free e g factor
 
-axialA = (A[0] == A[1]) #check if g axial
-axialg = (g[0] == g[1]) #check if A axial
-
 #diffusion tilt (all angles in degrees)
 ald = 0#-5 
 bed = 0#10
 gad = 0#-15
-itd = abs(ald) > rndoff or abs(bed) > rndoff or abs(gad) > rndoff
 
 #magnetic tilt
 alm = 0#-20
 bem = 0#25
 gam = 0#-30
-itm = abs(alm) > rndoff or abs(bem) > rndoff or abs(gam) > rndoff
 
 #director tilt
 psi = 0
 
-#
+#nuclear spin
 In = 1 #nitroxide ideally
-ipsi0 = (abs(psi)>rndoff) #director tilt flag; multiple ort or given director tilt
-kptmx = 0 #I set it, but I don't see it defined to be 0 anywhere. They define it only when c20, etc. are on. It is argmax_K c_{LK}.
-delta_K = 1 + (itd == 0 and itm == 0)
-delta_L = 1 + (axialA and axialg and delta_K == 2 and kptmx == 0)
-#jMmin = 1 #as Zeeman Nuclear is 0
-jKmin = 1 - 2 * (abs(alm) > rndoff or abs(gam) > rndoff or abs(gad) > rndoff) #as per rules from MIIMFreed, I read this in the code
-ipnmx = 2 
 I2 = 2 * In
+ipnmx = 2 
 
 #high field approx must be valid
 if (B0 < 10 * max( max(A), (max(g)-min(g))*B0/g0) ):
@@ -57,8 +46,7 @@ if (B0 < 10 * max( max(A), (max(g)-min(g))*B0/g0) ):
 
 #generate the matrix indices, diag and off-diag spaces   
 print("\n")
-ndimo, ndimd, ind_offdiag, ind_diag = indgen(8, 7, 4, 3, 2) #(75, 51, 25, 2, 2) #(30, 21, 15, 10, 2)
-
+ndimo, ndimd, ind_offdiag, ind_diag, Lstarts_offdiag, Lstarts_diag, Llist = indgen(75, 51, 25, 2, 2, g, A, I2, [ald,bed,gad], [alm,bem,gam], psi) #(75, 51, 25, 2, 2) #(30, 21, 15, 10, 2) #(8, 7, 4, 3, 2)
 np.savetxt('ind_offdiag.txt',ind_offdiag,fmt='%d')
 #from dlkmo import *
 stt = time.time()
@@ -67,13 +55,15 @@ stt = time.time()
 iden = coo_matrix((np.ones(ndimo),(np.arange(ndimo),np.arange(ndimo))))
 stvx = np.array([[1.],[1.],[1.]])/math.sqrt(3);stvx=np.concatenate((stvx,np.zeros((ndimo-3,1))),axis=0)
 
-matzi = SpinHamiltonianSuperoperatorDiag(ind_diag, B0, psi, In, g, A, ald,bed,gad, alm,bem,gam)
+matzi = SpinHamiltonianSuperoperatorDiag(ind_diag, B0, psi, In, g, A, ald,bed,gad, alm,bem,gam, Llist, Lstarts_offdiag)
 matzr = DiffTensorNoPotential(ind_diag, R, g)
 matz = matzr + 1.0j * matzi
+io.mmwrite('matz',matz.tocoo())
 
 matxi = SpinHamiltonianSuperoperatorOffDiag(ind_offdiag, B0, psi, In, g, A, ald,bed,gad, alm,bem,gam) - B0*iden
 matxr = DiffTensorNoPotential(ind_offdiag, R, g)
 matx = matxr + 1.0j * matxi 
+io.mmwrite('matx',matx.tocoo())
 
 #time required to construct the full (re+im) SLE matrix
 stp = time.time()
@@ -140,4 +130,3 @@ a = -coo_matrix((V,(I,J))) #because the code does \Gamma "-" i L
 print(np.max(np.abs(a-matzi)))
 io.mmwrite('matzi.txt',matzi.tocoo())
 #print(np.max(np.imag(matzi)))
-
