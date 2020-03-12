@@ -54,22 +54,27 @@ def SpinHamiltonianSuperoperatorDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad, a
     
     for i in range(ndim): #ndim is ndimd
         L1,M1,K1,jK1,pI1,qI1,pS1,qS1 = ind_arr[i]
-        #print(L1,M1,K1,jM1,jK1,pI1,qI1,pS1,qS1)
+        #print(L1,M1,K1,jK1,pI1,qI1,pS1,qS1)
         #if pS1 != 0 or qS1 != 1:
         #    raise ValueError("wrong routine used, check index list again")
+        #left limit
         if L1-2 in Llist:
             left_j = Lstarts_diag[Llist.index(L1-2)]
         elif L1-1 in Llist:
             left_j = Lstarts_diag[Llist.index(L1-1)]
         else:
             left_j = Lstarts_diag[Llist.index(L1)]
+        #right limit
         if L1+2 in Llist:
-            right_j = Lstarts_diag[min(Llist.index(L1+2)+1,len(Llist)-1)]
+            right_j = Lstarts_diag[Llist.index(L1+2)+1]#note the starting point right after L1+2
         elif L1+1 in Llist:
-            right_j = Lstarts_diag[min(Llist.index(L1+1)+1,len(Llist)-1)]
+            right_j = Lstarts_diag[Llist.index(L1+1)+1]#Lstarts arrays have a length 1+len(Llist), last element must be ndim
         else:
             right_j = ndim
-        for j in range(ndim): #range(left_j,right_j): #define band, this will really speed up things! Think about the nbnd in CW nlsl matrll.f
+        
+        for j in range(left_j,right_j):  #range(ndim) #define band, this will really speed up things! Think about the nbnd in CW nlsl matrll.f
+            #if i==7 or j==7:
+            #    print(left_j,right_j)
             L2,M2,K2,jK2,pI2,qI2,pS2,qS2 = ind_arr[j]
             #print(L1,M1,K1,jM1,jK1,pI1,qI1,pS1,qS1)
             #if pS2 != 0 or qS2 != 1:
@@ -93,7 +98,7 @@ def SpinHamiltonianSuperoperatorDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad, a
 
 
 
-def SpinHamiltonianSuperoperatorOffDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad, alm, bem, gam):
+def SpinHamiltonianSuperoperatorOffDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad, alm, bem, gam, Llist, Lstarts_offdiag):
 	#mind it, this is pS=1 in the 1 electron 2d ELDOR
     np.seterr(invalid='raise')
     g0 = sum(g)/3
@@ -158,8 +163,22 @@ def SpinHamiltonianSuperoperatorOffDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad
         #print(L1,M1,K1,jM1,jK1,pI1,qI1,pS1,qS1)
         #if pS1 != 0 or qS1 != 1:
         #    raise ValueError("wrong routine used, check index list again")
+        #left limit
+        if L1-2 in Llist:
+            left_j = Lstarts_offdiag[Llist.index(L1-2)]
+        elif L1-1 in Llist:
+            left_j = Lstarts_offdiag[Llist.index(L1-1)]
+        else:
+            left_j = Lstarts_offdiag[Llist.index(L1)]
+        #right limit
+        if L1+2 in Llist:
+            right_j = Lstarts_offdiag[Llist.index(L1+2)+1]#note the starting point right after L1+2
+        elif L1+1 in Llist:
+            right_j = Lstarts_offdiag[Llist.index(L1+1)+1]#Lstarts arrays have a length 1+len(Llist), last element must be ndim
+        else:
+            right_j = ndim
             
-        for j in range(ndim):
+        for j in range(left_j,right_j): #range(ndim):
             L2,M2,K2,jK2,pI2,qI2,pS2,qS2 = ind_arr[j]
             #print(L1,M1,K1,jM1,jK1,pI1,qI1,pS1,qS1)
             #if pS2 != 0 or qS2 != 1:
@@ -176,7 +195,7 @@ def SpinHamiltonianSuperoperatorOffDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad
                 mat[i,j] = NormFacL(L1,L2) * NormFacK(K1,K2) * par(M1+K1) * (\
                         sum([R_a(l,jK1,jK2,L1,L2,K1,K2) * w3jmatlabC(L1,l,L2,M1,M2-M1,-M2) * \
                              Ax_aC(l,pI1,pI2,qI1,qI2,pS1,pS2,qS1,qS2,I) * dlkmC(l,dpS+dpI,M1-M2,0,psi,0) for l in [0,2]]) + \
-                        sum([R_g(l,jK1,jK2,L1,L2,K1,K2) * w3jmatlabC(L1,l,L2,M1,M2-M1,-M2) * \
+                        sum([R_g(l,jK1,jK2,L1,L2,K1,K2) * w3jmatlabC(L1,l,L2,M1,M2-M1,-M2) * B0 * \
                              Ax_gC(l,pI1,pI2,qI1,qI2,pS1,pS2,qS1,qS2,I) * dlkmC(l,dpS+dpI,M1-M2,0,psi,0) for l in [0,2]]) \
                         )
 #                mat[j,i] = mat[i,j]   #forcing symmetry in the matrix

@@ -79,8 +79,10 @@ def indgen(Lemax, Lomax, Kmax, Mmax, ipnmx, g, A, I2, angd, angm, psi):
                             ndimd += 2
                             ind_diag.append([L,M,K,jK,pI,qI,0,1]) #jM removed
                             ind_diag.append([L,M,K,jK,pI,qI,0,-1]) #jM removed
-     #so understand this carefully: earlier L M K and L -M K used to show up next to each other, now that won't happen, 
-     #now qS=-+1 are neighbors, changed the bandedness of the matrix a bit, anyway L,M,K are the hard hitters 
-     #i.e., L1,M1,K1 can't be too far from L2,M2,K2	
+    #so understand this carefully: earlier L M K and L -M K used to show up next to each other, now that won't happen, 
+    #now qS=-+1 are neighbors, changed the bandedness of the matrix a bit, anyway L,M,K are the hard hitters 
+    #i.e., L1,M1,K1 can't be too far from L2,M2,K2	
+    Lstarts_offdiag.append(ndimo) #caution: Lstarts lists have a length 1 + len(Llist), this is to take care of edge cases
+    Lstarts_diag.append(ndimd)
 
     return ndimo, ndimd, ind_offdiag, ind_diag, Lstarts_offdiag, Lstarts_diag, Llist
