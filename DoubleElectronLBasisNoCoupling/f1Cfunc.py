@@ -32,6 +32,11 @@ alm = 0#-20
 bem = 0#25
 gam = 0#-30
 
+#dipolar tilt !!!NEW!!!
+aldip = 0#-20
+bedip = 0#25
+gadip = 0#-30
+
 #director tilt
 psi = 0
 
@@ -46,7 +51,7 @@ if (B0 < 10 * max( max(A), (max(g)-min(g))*B0/g0) ):
 
 #generate the matrix indices, diag and off-diag spaces   
 print("\n")
-ndimo, ndimd, ind_offdiag, ind_diag, Lstarts_offdiag, Lstarts_diag, Llist = indgen(75, 51, 25, 2, 2, g, A, I2, [ald,bed,gad], [alm,bem,gam], psi) #(75, 51, 25, 2, 2) #(30, 21, 15, 10, 2) #(8, 7, 4, 3, 2)
+ndimo, ndimd, ind_offdiag, ind_diag, Lstarts_offdiag, Lstarts_diag, Llist = indgen(75, 51, 25, 2, 2, g, A, I2, [ald,bed,gad], [alm,bem,gam], [aldip, bedip, gadip], psi) #(75, 51, 25, 2, 2) #(30, 21, 15, 10, 2) #(8, 7, 4, 3, 2)
 print(Llist)
 print(Lstarts_diag)
 np.savetxt('ind_offdiag.txt',ind_offdiag,fmt='%d')
