@@ -62,10 +62,11 @@ def indgen(Lemax, Lomax, Kmax, Mmax, ipnmx, g, A, I2, angd, angm, psi):
                 for M in range(-min(Mmax, L),min(Mmax, L)+1):
                     #calculate pImin and max
                     pImax=min(I2,pImaxval)
-                    if M == 0:
-                        pImin=0
-                    else:
-                        pImin=-pImax
+#                    if M == 0:
+#                        pImin=0
+#                    else:
+#                        pImin=-pImax
+                    pImin=-pImax #no M symmetrization, that's why
                     for pI in range(pImin, pImax+1):
                         #if M==0 and pI==0 and jM != par(L):
                         #    continue

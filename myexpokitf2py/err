@@ -1,0 +1,95 @@
+ f2py --fcompiler=gfortran -c expokit.f -m expokit --link-blas_opt --link-lapack_opt | grep "error"
+/home/prannerta100/.local/lib/python3.6/site-packages/numpy/distutils/system_info.py:1896: UserWarning: 
+    Optimized (vendor) Blas libraries are not found.
+    Falls back to netlib Blas library which has worse performance.
+    A better performance should be easily gained by switching
+    Blas library.
+  if self._calc_info(blas):
+/home/prannerta100/.local/lib/python3.6/site-packages/numpy/distutils/system_info.py:1896: UserWarning: 
+    Blas (http://www.netlib.org/blas/) libraries not found.
+    Directories to search for the libraries can be specified in the
+    numpy/distutils/site.cfg file (section [blas]) or by setting
+    the BLAS environment variable.
+  if self._calc_info(blas):
+/home/prannerta100/.local/lib/python3.6/site-packages/numpy/distutils/system_info.py:1896: UserWarning: 
+    Blas (http://www.netlib.org/blas/) sources not found.
+    Directories to search for the sources can be specified in the
+    numpy/distutils/site.cfg file (section [blas_src]) or by setting
+    the BLAS_SRC environment variable.
+  if self._calc_info(blas):
+/home/prannerta100/.local/lib/python3.6/site-packages/numpy/distutils/system_info.py:1730: UserWarning: 
+    Lapack (http://www.netlib.org/lapack/) libraries not found.
+    Directories to search for the libraries can be specified in the
+    numpy/distutils/site.cfg file (section [lapack]) or by setting
+    the LAPACK environment variable.
+  return getattr(self, '_calc_info_{}'.format(name))()
+/home/prannerta100/.local/lib/python3.6/site-packages/numpy/distutils/system_info.py:1730: UserWarning: 
+    Lapack (http://www.netlib.org/lapack/) sources not found.
+    Directories to search for the sources can be specified in the
+    numpy/distutils/site.cfg file (section [lapack_src]) or by setting
+    the LAPACK_SRC environment variable.
+  return getattr(self, '_calc_info_{}'.format(name))()
+C compiler: x86_64-linux-gnu-gcc -pthread -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC
+In file included from /home/prannerta100/.local/lib/python3.6/site-packages/numpy/core/include/numpy/ndarraytypes.h:1832:0,
+                 from /home/prannerta100/.local/lib/python3.6/site-packages/numpy/core/include/numpy/ndarrayobject.h:12,
+                 from /home/prannerta100/.local/lib/python3.6/site-packages/numpy/core/include/numpy/arrayobject.h:4,
+                 from /tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/fortranobject.h:13,
+                 from /tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:16:
+/home/prannerta100/.local/lib/python3.6/site-packages/numpy/core/include/numpy/npy_1_7_deprecated_api.h:17:2: warning: #warning "Using deprecated NumPy API, disable it with " "#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION" [-Wcpp]
+ #warning "Using deprecated NumPy API, disable it with " \
+  ^~~~~~~
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c: In function ‘cb_matvec_in_dmexpv__user__routines’:
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:383:7: warning: variable ‘capi_j’ set but not used [-Wunused-but-set-variable]
+   int capi_j,capi_i = 0;
+       ^~~~~~
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c: In function ‘cb_matvec_in_dgexpv__user__routines’:
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:505:7: warning: variable ‘capi_j’ set but not used [-Wunused-but-set-variable]
+   int capi_j,capi_i = 0;
+       ^~~~~~
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c: In function ‘cb_matvec_in_dsexpv__user__routines’:
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:627:7: warning: variable ‘capi_j’ set but not used [-Wunused-but-set-variable]
+   int capi_j,capi_i = 0;
+       ^~~~~~
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c: In function ‘cb_matvec_in_zgexpv__user__routines’:
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:749:7: warning: variable ‘capi_j’ set but not used [-Wunused-but-set-variable]
+   int capi_j,capi_i = 0;
+       ^~~~~~
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c: In function ‘cb_matvec_in_zhexpv__user__routines’:
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:871:7: warning: variable ‘capi_j’ set but not used [-Wunused-but-set-variable]
+   int capi_j,capi_i = 0;
+       ^~~~~~
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c: In function ‘cb_matvec_in_dgphiv__user__routines’:
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:1036:13: error: ‘n’ undeclared (first use in this function)
+   w_Dims[0]=n;
+             ^
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:1036:13: note: each undeclared identifier is reported only once for each function it appears in
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:993:7: warning: variable ‘capi_j’ set but not used [-Wunused-but-set-variable]
+   int capi_j,capi_i = 0;
+       ^~~~~~
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c: In function ‘cb_matvec_in_dsphiv__user__routines’:
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:1167:13: error: ‘n’ undeclared (first use in this function)
+   w_Dims[0]=n;
+             ^
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:1124:7: warning: variable ‘capi_j’ set but not used [-Wunused-but-set-variable]
+   int capi_j,capi_i = 0;
+       ^~~~~~
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c: In function ‘cb_matvec_in_zgphiv__user__routines’:
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:1298:13: error: ‘n’ undeclared (first use in this function)
+   w_Dims[0]=n;
+             ^
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:1255:7: warning: variable ‘capi_j’ set but not used [-Wunused-but-set-variable]
+   int capi_j,capi_i = 0;
+       ^~~~~~
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c: In function ‘cb_matvec_in_zhphiv__user__routines’:
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:1429:13: error: ‘n’ undeclared (first use in this function)
+   w_Dims[0]=n;
+             ^
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:1386:7: warning: variable ‘capi_j’ set but not used [-Wunused-but-set-variable]
+   int capi_j,capi_i = 0;
+       ^~~~~~
+At top level:
+/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c:131:12: warning: ‘f2py_size’ defined but not used [-Wunused-function]
+ static int f2py_size(PyArrayObject* var, ...)
+            ^~~~~~~~~
+error: Command "x86_64-linux-gnu-gcc -pthread -DNDEBUG -g -fwrapv -O2 -Wall -g -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -fPIC -I/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6 -I/home/prannerta100/.local/lib/python3.6/site-packages/numpy/core/include -I/usr/include/python3.6m -c /tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.c -o /tmp/tmpvpk0ofv4/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.o -MMD -MF /tmp/tmpvpk0ofv4/tmp/tmpvpk0ofv4/src.linux-x86_64-3.6/expokitmodule.o.d" failed with exit status 1
+
