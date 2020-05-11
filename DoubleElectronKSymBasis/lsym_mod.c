@@ -219,6 +219,17 @@ else{
 return parity(dpA+dpB) * sqrt(2*2+1) * Cw3jmatlab(1,1,2,dpB,dpA,-dpA-dpB) * S_A;
 }
 
+/*
+double *Caa(int n)
+{
+int i;
+aa = malloc(sizeof(double)*n);
+for(i=0;i<n;i++) aa[i] = (double)i;
+return aa;
+}
+*/
+
+
 static PyObject* w3jmatlab(PyObject* self, PyObject* args)
 {
     // instantiate our `j,m` values
@@ -279,6 +290,20 @@ static PyObject* Ax_dip(PyObject* self, PyObject* args)
     aa = CAx_dip(pA1, pA2, qA1, qA2, pB1, pB2, qB1, qB2);
     return PyComplex_FromDoubles(creal(aa),cimag(aa));
 }
+
+/*
+//aa
+static PyObject* aa(PyObject* self, PyObject* args)
+{
+        int pA1, pA2, qA1, qA2, pB1, pB2, qB1, qB2;
+    double aa;
+    if(!PyArg_ParseTuple(args,"iiiiiiii",&pA1,&pA2,&qA1,&qA2,&pB1,&pB2,&qB1,&qB2))
+        return NULL;
+    aa = CAx_dip(pA1, pA2, qA1, qA2, pB1, pB2, qB1, qB2);
+    return PyComplex_FromDoubles(creal(aa),cimag(aa));
+}
+*/
+
 
 static PyMethodDef myMethods[] = {
     { "w3jmatlabC", w3jmatlab, METH_VARARGS, "Wig 3j- 6 args, j123,m123" },

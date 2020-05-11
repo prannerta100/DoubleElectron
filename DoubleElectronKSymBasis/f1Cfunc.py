@@ -74,16 +74,20 @@ np.savetxt('ind_Plus2.txt',ind_Plus2,fmt='%d')
 
 stt = time.time()
 #matzi = SpinHamiltonianSuperoperatorDiag(ind_diag, B0, psi, In, g, A, ald,bed,gad, alm,bem,gam, Llist, Lstarts_diag)
+#sys.exit()
+#io.mmwrite('../FastDoubleElectronKSymBasis/matz',matzi.tocoo())
 #matzr = DiffTensorNoPotential(ind_diag, R, g)
 #matz = matzr + 1.0j * matzi
 
 iden = coo_matrix((np.ones(ndimo),(np.arange(ndimo),np.arange(ndimo))))
 #matxi = SpinHamiltonianSuperoperatorOffDiag(ind_offdiag, B0, psi, In, g, A, ald,bed,gad, alm,bem,gam, Llist, Lstarts_offdiag) - B0*iden
+#io.mmwrite('../FastDoubleElectronKSymBasis/matx',matxi.tocoo())
+
 #matxr = DiffTensorNoPotential(ind_offdiag, R, g)
 #matx = matxr + 1.0j * matxi
 
-stp = time.time()
-print('time for matgen',stp-stt,' seconds')
+#stp = time.time()
+#print('time for matgen',stp-stt,' seconds')
 #io.mmwrite('matz',matz.tocoo())
 #matz = io.mmread('matz.mtx')
 
@@ -93,8 +97,10 @@ matz = 2* coo_matrix((np.ones(ndimd),(np.arange(ndimd),np.arange(ndimd))))
 
 stt = time.time()
 matdip = 1.0j * SecularDipolarTensor(ind_Plus1, 1, [0,0,0], Llist, Lstarts_Plus1)
+io.mmwrite('../FastDoubleElectronKSymBasis/matdip_Plus1',-1.0j*matdip.tocoo())
 stp = time.time()
 print('time for matdip',stp-stt,' seconds')
+sys.exit()
 
 def matvec_Plus1(v):
     #v expected to be in the pS1+pS2 = 1 coherence subspace 

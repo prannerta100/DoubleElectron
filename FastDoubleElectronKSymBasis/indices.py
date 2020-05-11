@@ -100,6 +100,24 @@ def indgen(Lemax, Lomax, Kmax, Mmax, ipnmx, g, A, I2, angd, angm, angdip, psi):
                     continue #pass, don't consider as jK = (-1)^L for K = 0, +-0 same
 #                for jM in range(jMmin,1+1,2):
                 for M in range(-min(Mmax, L),min(Mmax, L)+1):
+                    #Plus1=(0,1),(1,0)
+                    ndimPlus1 += 4
+                    ind_Plus1.append([L,M,K,jK,1,0,0,1]) #jM removed
+                    ind_Plus1.append([L,M,K,jK,1,0,0,-1]) #jM removed
+                    ind_Plus1.append([L,M,K,jK,0,1,1,0]) #jM removed
+                    ind_Plus1.append([L,M,K,jK,0,-1,1,0]) #jM removed
+
+                    #Plus2=(1,1) 
+                    ndimPlus2 += 1
+                    ind_Plus2.append([L,M,K,jK,1,0,1,0]) #jM removed
+
+                    #Minus1=(0,-1),(-1,0)
+                    ndimMinus1 += 4
+                    ind_Minus1.append([L,M,K,jK,-1,0,0,1]) #jM removed
+                    ind_Minus1.append([L,M,K,jK,-1,0,0,-1]) #jM removed
+                    ind_Minus1.append([L,M,K,jK,0,1,-1,0]) #jM removed
+                    ind_Minus1.append([L,M,K,jK,0,-1,-1,0]) #jM removed
+
                     #calculate pImin and max
                     pImax=min(I2,pImaxval)
                     #if M == 0:
@@ -121,34 +139,36 @@ def indgen(Lemax, Lomax, Kmax, Mmax, ipnmx, g, A, I2, angd, angm, angdip, psi):
                             ndimd += 2
                             ind_diag.append([L,M,K,jK,pIa,qIa,0,1]) #jM removed
                             ind_diag.append([L,M,K,jK,pIa,qIa,0,-1]) #jM removed
-                            for pIb in range(pImin, pImax+1):
+#                            for pIb in range(pImin, pImax+1):
                                 #if M==0 and pI==0 and jM != par(L):
                                 #    continue
-                                if ipsi0==0 and pIb != M:
-                                    continue
-                                qImaxb=I2 - abs(pIb)
-                                qIminb=-qImaxb
-                                for qIb in range(qIminb, qImaxb+1, 2):
+#                                if ipsi0==0 and pIb != M:
+#                                    continue
+#                                qImaxb=I2 - abs(pIb)
+#                                qIminb=-qImaxb
+#                                for qIb in range(qIminb, qImaxb+1, 2):
                                     #Plus1=(0,1),(1,0)
-                                    ndimPlus1 += 4
-                                    ind_Plus1.append([L,M,K,jK,pIa,qIa,1,0,pIb,qIb,0,1]) #jM removed
-                                    ind_Plus1.append([L,M,K,jK,pIa,qIa,1,0,pIb,qIb,0,-1]) #jM removed
-                                    ind_Plus1.append([L,M,K,jK,pIa,qIa,0,1,pIb,qIb,1,0]) #jM removed
-                                    ind_Plus1.append([L,M,K,jK,pIa,qIa,0,-1,pIb,qIb,1,0]) #jM removed
+                                    #ndimPlus1 += 4
+                                    #ind_Plus1.append([L,M,K,jK,pIa,qIa,1,0,pIb,qIb,0,1]) #jM removed
+                                    #ind_Plus1.append([L,M,K,jK,pIa,qIa,1,0,pIb,qIb,0,-1]) #jM removed
+                                    #ind_Plus1.append([L,M,K,jK,pIa,qIa,0,1,pIb,qIb,1,0]) #jM removed
+                                    #ind_Plus1.append([L,M,K,jK,pIa,qIa,0,-1,pIb,qIb,1,0]) #jM removed
                                     
                                     #Plus2=(1,1) 
-                                    ndimPlus2 += 1
-                                    ind_Plus2.append([L,M,K,jK,pIa,qIa,1,0,pIb,qIb,1,0]) #jM removed
+                                    #ndimPlus2 += 1
+                                    #ind_Plus2.append([L,M,K,jK,pIa,qIa,1,0,pIb,qIb,1,0]) #jM removed
+                                    
                                     #Minus1=(0,-1),(-1,0)
-                                    ndimMinus1 += 4
-                                    ind_Minus1.append([L,M,K,jK,pIa,qIa,-1,0,pIb,qIb,0,1]) #jM removed
-                                    ind_Minus1.append([L,M,K,jK,pIa,qIa,-1,0,pIb,qIb,0,-1]) #jM removed
-                                    ind_Minus1.append([L,M,K,jK,pIa,qIa,0,1,pIb,qIb,-1,0]) #jM removed
-                                    ind_Minus1.append([L,M,K,jK,pIa,qIa,0,-1,pIb,qIb,-1,0]) #jM removed
+                                    #ndimMinus1 += 4
+                                    #ind_Minus1.append([L,M,K,jK,pIa,qIa,-1,0,pIb,qIb,0,1]) #jM removed
+                                    #ind_Minus1.append([L,M,K,jK,pIa,qIa,-1,0,pIb,qIb,0,-1]) #jM removed
+                                    #ind_Minus1.append([L,M,K,jK,pIa,qIa,0,1,pIb,qIb,-1,0]) #jM removed
+                                    #ind_Minus1.append([L,M,K,jK,pIa,qIa,0,-1,pIb,qIb,-1,0]) #jM removed
 
     #so understand this carefully: earlier L M K and L -M K used to show up next to each other, now that won't happen, 
     #now qS=-+1 are neighbors, changed the bandedness of the matrix a bit, anyway L,M,K are the hard hitters 
     #i.e., L1,M1,K1 can't be too far from L2,M2,K2	
+    #loop over, ready to output!
     Lstarts_offdiag.append(ndimo) #caution: Lstarts lists have a length 1 + len(Llist), this is to take care of edge cases
     Lstarts_diag.append(ndimd)
     Lstarts_Plus1.append(ndimPlus1)

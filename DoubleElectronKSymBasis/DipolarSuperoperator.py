@@ -36,33 +36,30 @@ def SecularDipolarTensor(ind_arr, D, angdip, Llist, Lstarts):
         raise NameError("Problem with indices!") #just a check
     mat = lil_matrix((ndim,ndim),dtype=complex) #complex because of something, not sure what 
 
+    Lmax=Llist[-1]
+
     for i in range(ndim): #ndim is ndimd
+        if(i%1000==0):
+            print(i)
         L1,M1,K1,jK1,pIa1,qIa1,pSa1,qSa1,pIb1,qIb1,pSb1,qSb1 = ind_arr[i]
         #print(L1,M1,K1,jK1,pI1,qI1,pS1,qS1)
         #if pS1 != 0 or qS1 != 1:
         #    raise ValueError("wrong routine used, check index list again")
         #left limit
-        if L1-2 in Llist:
-            left_j = Lstarts[Llist.index(L1-2)]
-        elif L1-1 in Llist:
-            left_j = Lstarts[Llist.index(L1-1)]
-        else:
-            left_j = Lstarts[Llist.index(L1)]
-        #right limit
-        if L1+2 in Llist:
-            right_j = Lstarts[Llist.index(L1+2)+1]#note the starting right after L1+2
-        elif L1+1 in Llist:
-            right_j = Lstarts[Llist.index(L1+1)+1]#Lstarts arrays have a length 1+len(Llist), last element must be ndim
-        else:
-            right_j = ndim
         #print('l,r,n',left_j,right_j,ndim) 
-        for j in range(left_j,right_j):  #range(ndim) #define band, this will really speed up things! Think about the nbnd in CW nlsl matrll.f
-            L2,M2,K2,jK2,pIa2,qIa2,pSa2,qSa2,pIb2,qIb2,pSb2,qSb2 = ind_arr[j]
-            if M1==M2 and pIa1==pIa2 and pIb1==pIb2 and qIa1==qIa2 and qIb1==qIb2 and abs(K2-K1) <=2:
+        for L2 in range(max(0,L1-2),min(L1+2,Lmax)+1):
+            for pSa2,qSa2 in [(-1,0),(0,1),(0,-1),(1,0)]:
+                for pSb2,qSb2 in [(-1,0),(0,1),(0,-1),(1,0)]:
+                    for jK2 in [-1,1]:
+                        for K2 in range(max(K1-2,0),K1+2):
+                            lst2 = [L2,M1,K2,jK2,pIa1,qIa1,pSa2,qSa2,pIb1,qIb1,pSb2,qSb2]
+                            if lst2 in ind_arr:
+                                j= ind_arr.index(lst2)
                 #Mat el: D * <1|Ax_a(2,0)^x|2> * (L1 2  L2) * (M1==M2)   * (L1 2      L2) * D2_(K1-K2)0(angdip) * (-1)^(M1+K1) * N_L(L1,L2)
                 #                                (M1 0 -M2)                (K1 K2-K1 -K2)
-                mat[i,j] = D * NormFacL(L1,L2) * 0.5 * NormFacK(K1,K2) * par(M1) * w3jmatlabC(L1,2,L2,M1,0,-M2) *\
-                           Ax_dipC(pSa1, pSa2, qSa1, qSa2,  pSb1, pSb2, qSb1, qSb2) * math.sqrt(jK1*jK2) * (\
+                                #M1 has to equal M2, so replaced M2 with M1 in the expression for mat[i][j]
+                                mat[i,j] = D * NormFacL(L1,L2) * 0.5 * NormFacK(K1,K2) * par(M1) * w3jmatlabC(L1,2,L2,M1,0,-M1) *\
+                                           Ax_dipC(pSa1, pSa2, qSa1, qSa2,  pSb1, pSb2, qSb1, qSb2) * math.sqrt(jK1*jK2) * (\
                                                   dlkmC(2,K1-K2,0,aldip,bedip,gadip)*par(K1)*w3jmatlabC(L1,2,L2,K1,K2-K1,-K2) + \
                                              jK1* dlkmC(2,-K1-K2,0,aldip,bedip,gadip)*par(L1)*w3jmatlabC(L1,2,L2,-K1,K2+K1,-K2) + \
                                              jK2* dlkmC(2,K1+K2,0,aldip,bedip,gadip)*par(L2+K2+K1)*w3jmatlabC(L1,2,L2,K1,-K2-K1,K2) + \
