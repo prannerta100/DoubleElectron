@@ -1,6 +1,8 @@
 import numpy as np
 import math
 from scipy.sparse import coo_matrix
+from scipy.sparse import kron as spkron
+from scipy.sparse import eye as speye
 def PulsePropPlus1ToPlus2(ndimPlus1, ndimPlus2, theta=math.pi/2, phi=0.0):
     prefac =  0.5j * math.cos(theta/2)**2 * math.sin(theta) * (math.cos(phi) - 1.0j*math.sin(phi))
     #prefac: i/2   * cos^2(theta/2)       *      sin(theta) *  exp(-i \phi) -> pg 31 lab nb 04/20
@@ -52,10 +54,11 @@ def PulsePropPlus2ToPlus1(ndimPlus2, ndimPlus1, theta=math.pi/2, phi=0.0):
     return coo_matrix((E,(I,J)), shape=(ndimPlus1,ndimPlus2))
 
 def PulsePropPlus1ToMinus1(ndimPlus1, ndimMinus1, theta=math.pi/2, phi=0.0):
-	prefac1 = 0.25 * math.sin(theta)**2 * (math.cos(2*phi) + 1.0j*math.sin(2*phi))
-	prefac2 = 0.25 * (math.cos(2*phi) + 1.0j*math.sin(2*phi)) #not much common
-	if ndimPlus1 != ndimPlus2:
-        raise ValueError('ndimPlus1 != 4 x ndimPlus2') #caution!
+    prefac1 = 0.25 * math.sin(theta)**2 * (math.cos(2*phi) + 1.0j*math.sin(2*phi))
+    prefac2 = math.sin(theta/2)**4 * (math.cos(2*phi) + 1.0j*math.sin(2*phi)) #not much common
+    if ndimPlus1 != ndimMinus1:
+        raise ValueError('ndimPlus1 != ndimMinus1') #caution!
     #to be continued, this part is tricky as there are 16 combinations
-    I = np.kron(np.arange(ndimPlus1),np.ones(4)).astype(int)
-    J = np.kron(np.arange(ndimPlus2),np.ones(4)).astype(int)
+    mat4by4 = np.array([[prefac1,prefac2,prefac1,-prefac1],[prefac2,prefac1,-prefac1,prefac1],[prefac1,-prefac1,prefac1,prefac2],[-prefac1,prefac1,prefac2,prefac1]])
+    return spkron(speye(int(ndimPlus1/4)),mat4by4,format='coo')
+    

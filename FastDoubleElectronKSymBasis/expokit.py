@@ -2,7 +2,7 @@
 #  EXPV computes an approximation of w = exp(t*A)*v for a
 #  general matrix A using Krylov subspace  projection techniques.
 #  It does not compute the matrix exponential in isolation but instead,
-#  it computes directly the action of the exponential operator on the 
+#  it computes directly the action of the exponential operator on the
 #  operand vector. This way of doing so allows for addressing large
 #  sparse problems. The matrix under consideration interacts only
 #  via matrix-vector products (matrix-free method).
@@ -26,8 +26,8 @@
 #  problem. The matrix exponential is well-conditioned if hump = 1,
 #  whereas it is poorly-conditioned if hump >> 1. However the solution
 #  can still be relatively fairly accurate even when the hump is large
-#  (the hump is an upper bound), especially when the hump and 
-#  ||w(t)||/||v|| are of the same order of magnitude (further details in 
+#  (the hump is an upper bound), especially when the hump and
+#  ||w(t)||/||v|| are of the same order of magnitude (further details in
 #  reference below).
 #
 #  Example 1:
@@ -72,7 +72,7 @@
 #  See also MEXPV, EXPOKIT.
 
 #  Roger B. Sidje (rbs@maths.uq.edu.au)
-#  EXPOKIT: Software Package for Computing Matrix Exponentials. 
+#  EXPOKIT: Software Package for Computing Matrix Exponentials.
 #  ACM - Transactions On Mathematical Software, 24(1):130-156, 1998
 
 #@mfunction("w, err, hump")
@@ -82,11 +82,11 @@ from scipy.linalg import norm, expm
 from math import log10, exp, sqrt, pi, ceil, floor
 from numpy import sign, zeros, inf, finfo, squeeze
 def expv(t, A, v, anorm, tol=1.0e-7, m=30):
-    
+
     [n, n] = A.shape
     m = min(n, m) #make sure m is not greater than the size of the matrix, n
     #print('m=',m)
-    print('A.shape[0]=',A.shape[0])
+    print('A.shape[0] is',A.shape[0])
     #anorm = onenormest(A, inf)
     mxrej = 10
     btol = 1.0e-7; #print('btol=',btol)
@@ -137,21 +137,21 @@ def expv(t, A, v, anorm, tol=1.0e-7, m=30):
                 H[i, j] = V[:, i].conj().T @ p
                 #print('i,j,H[i,j]',i,j,H[i,j])
                 p = p - H[i, j] * V[:, i]
-            
+
             s = norm(p)
             if s < btol:
                 k1 = 0
                 mb = j
                 t_step = t_out - t_now
                 break
-            
+
             H[j + 1, j] = s
             V[:, j + 1] = (1 / s) * p
-        
+
         if k1 != 0:
             H[m + 1, m ] = 1
             avnorm = norm(A @ V[:, m])
-        
+
         ireject = 0
         while ireject <= mxrej:
             mx = mb + k1 #k1 not C offset by -1, as mx and mb have been already C-offset
@@ -176,8 +176,8 @@ def expv(t, A, v, anorm, tol=1.0e-7, m=30):
                 else:
                     err_loc = phi1
                     xm = 1 / (m - 1)
-                
-            
+
+
             if err_loc <= delta * t_step * tol:
                 break
             else:
@@ -186,10 +186,10 @@ def expv(t, A, v, anorm, tol=1.0e-7, m=30):
                 t_step = ceil(t_step / s) * s
                 if ireject == mxrej:
                     raise ValueError('The requested tolerance is too high.')
-                
+
                 ireject = ireject + 1
-            
-        
+
+
         mx = mb + max(0, k1 - 1) #same: mx , mb already C offset
         w = V[:, 0:(mx+1)] @ (beta * F[0:(mx+1), 0])
         #print('w=',w)
@@ -206,5 +206,5 @@ def expv(t, A, v, anorm, tol=1.0e-7, m=30):
 
     err = s_error
     hump = hump / normv
-
+    print(nstep)
     return w, err, hump
