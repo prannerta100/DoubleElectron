@@ -1,7 +1,9 @@
+#include "helper_functions.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <complex.h>
 #include <math.h>
+
 
 //common defs
 //rndoff
@@ -9,133 +11,11 @@ double rndoff = 1e-12;
 //fundamental constants
 double hbar = 1.05443e-27;
 double betae = 9.2731e-21;
-//parity
-int parity(int x){
-if(x%2==0) return 1;
-return -1;
-}
-int intmax(int a, int b){
-return (a>b)?a:b;
-}
-int intmin(int a, int b){
-return (a<b)?a:b;
-}
-//normalization constants
-double NormFacPlus(int l,int k){
-    return sqrt((double)(l-k-1)*(l-k)*(l+k+1)*(l+k+2));
-}
-double NormFacMinus(int l,int k){
-    return sqrt((double)(l+k-1)*(l+k)*(l-k+1)*(l-k+2));
-}
-double NormFacK(int k1,int k2){
-    int flg1=0;
-    int flg2=0;
-    if(k1==0) flg1=1;
-    if(k2==0) flg2=1;
-    return 1/sqrt((double)(flg1+1)*(flg2+1));
-}
-double NormFacL(int l1,int l2){
-    return sqrt((double)(2*l1+1)*(2*l2+1));
-}
 
+//parity
 
 
 //w3j, dlkm, Ax matrixelements.c
-double complex Cdlkm(int l, int k, int m, double alpha, double beta, double gamma){
-double cb, sb, d;
-double complex ans;
-if(l!=0 && l!=2){   
-    //dlkm defined only for l=0 and l=2
-    return CMPLX(0.0,0.0); //0
-}
-if(abs(k)>l || abs(m)>l){
-    return CMPLX(0.0,0.0); //0
-}
-if(l==0){
-	return CMPLX(1.0,0.0); //1
-}
-// if(l==2:
-
-alpha *= M_PI/180.0;
-beta *= M_PI/180.0;
-gamma *= M_PI/180.0;
-cb = cos(beta);
-sb = sin(beta);
-d = 0.0;
-//print(l,k,m,"func_print_from_dlkm")
-if((k==2 && m==2) || (k==-2 && m==-2)){
-    d = (1+cb) * (1+cb) / 4.0;
-}
-else if((k==2 && m==1) || (k==-1 && m==-2)){
-    d = -sb * (1+cb) / 2.0;
-}
-else if((k==1 && m==2) || (k==-2 && m==-1)){
-    d = sb * (1+cb) / 2.0;
-}
-else if((k==-2 && m==0) || (k==0 && m==-2) || (k==2 && m==0) || (k==0 && m==2)){
-    d = sqrt((double)3.0/8.0) * sb * sb;
-}
-else if((k==2 && m==-1) || (k==1 && m==-2)){
-    d = sb * (cb - 1) / 2.0;
-}
-else if((k==-2 && m==1) || (k==-1 && m==2)){
-    d = -sb * (cb - 1) / 2.0;
-}
-else if((k==2 && m==-2) || (k==-2 && m==2)){
-    d = (1-cb) * (1-cb) / 4.0;
-}
-else if((k==1 && m==1) || (k==-1 && m==-1)){
-    d = (2*cb-1) * (1+cb) / 2.0;
-}
-else if((k==1 && m==-1) || (k==-1 && m==1)){
-    d = (2*cb+1) * (1-cb) / 2.0;
-}
-else if((k==1 && m==0) || (k==0 && m==-1)){
-    d = -sb * cb * sqrt((double)1.5);
-}
-else if((k==0 && m==1) || (k==-1 && m==0)){
-    d = sb * cb * sqrt((double)1.5);
-}
-else if(k==0 && m==0){
-    d = (3*cb*cb - 1) / 2.0;
-}
-ans = CMPLX(d* cos(k*alpha+m*gamma),-d*sin(k*alpha+m*gamma));
-return ans;
-}
-
-double Cw3jmatlab(int j1, int j2, int j3, int m1, int m2, int m3){
-//our code has only integers pI,LKM, etc. all integers
-//clock_t tm;
-double w, tmp, tmp2;
-int t1, t2, t3, t4, t5, tmin, tmax, i, t, arr[10];
-int signarr[10]={-1,1,1,1,1,1,1,1,1,1};
-//printf("%d\t%d\t%d\t%d\t%d\t%d\n",j1,j2,j3,m1,m2,m3);
-if(j1<0 || j2<0 || j3<0) return 0;
-if(abs(m1)>j1 || abs(m2)>j2 || abs(m3)>j3) return 0;
-if(j3 > j1+j2 || j3 < abs(j1-j2) || m1+m2+m3!=0 ) return 0;
-if(m1==0 && m2==0 && m3==0 && (j1+j2+j3)%2!=0) return 0;
-t1= j2-m1-j3;
-t2= j1+m2-j3;
-t3= j1+j2-j3;
-t4= j1-m1;
-t5= j2+m2;
-tmin=(int)intmax(0,intmax(t1,t2));
-tmax=(int)intmin(t3,intmin(t4,t5));
-//t_arr=range(tmin,tmax+1);
-arr[0]=j1+j2+j3+1+1; arr[1]=j1+j2-j3+1; arr[2]=j1-j2+j3+1; arr[3]=-j1+j2+j3+1; arr[4]=j1+m1+1;
-arr[5]=j1-m1+1; arr[6]=j2+m2+1; arr[7]=j2-m2+1; arr[8]=j3+m3+1; arr[9]=j3-m3+1;
-tmp =0.0;
-for(i=0;i<10;i++) tmp+=(double)lgamma(arr[i])*signarr[i];
-tmp*=0.5;
-w=0.0;
-for(t=tmin;t<=tmax;t++){
-	tmp2=lgamma(t+1)+lgamma(t-t1+1)+lgamma(t-t2+1)+lgamma(t3-t+1)+lgamma(t4-t+1)+lgamma(t5-t+1);
-	w += parity(t) * exp(-tmp2);
-}
-w *= exp(tmp) * parity(j1-j2-m3);
-//printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%lf\t%lf\n",tmin,tmax,j1,j2,j3,m1,m2,m3,t1,t2,t3,t4,t5,tmp,w);
-return w;
-}
 
 double complex CAx_a(int l, int pI1, int pI2, int qI1, int qI2,  int pS1, int pS2, int qS1, int qS2, int II){
 //general purpose, eqn A7-9 in Lee 1994
@@ -516,7 +396,7 @@ for(i=-2;i<=2;i++){
 
 for(i=-2;i<=2;i++){ 
     for(j=-2;j<=2;j++){
-        tmp=CMPLX(0.0,0.0);
+        tmp=0.0+0.0*I; //CMPLX(0.0,0.0);
         for(k=-2;k<=2;k++) 
             tmp+=d2diff[i+2][k+2]*d2mag[k+2][j+2];
         d2diffmag[i+2][j+2]=tmp;
@@ -532,11 +412,11 @@ F_aD_Conj0 = conj(-(Axx+Ayy+Azz)/sqrt((double)3));
 F_gD_Conj0 = conj(-(gxx+gyy+gzz)/sqrt((double)3))/g0;
 //printf("Conj0:%lf,%lf;%f,%lf\n",creal(F_aD_Conj0),cimag(F_aD_Conj0),creal(F_gD_Conj0),cimag(F_gD_Conj0));
 for(i=-2;i<=2;i++){
-    tmp=CMPLX(0.0,0.0);
+    tmp=0.0+0.0*I; //CMPLX(0.0,0.0);
     for(j=-2;j<=2;j++)
         tmp+=d2diffmag[i+2][j+2]*conj(f2_aa[j+2]);
     F_aD_Conj2[i+2]=tmp;
-    tmp=CMPLX(0.0,0.0);
+    tmp=0.0+0.0*I; //CMPLX(0.0,0.0);
     for(j=-2;j<=2;j++)
         tmp+=d2diff[i+2][j+2]*conj(f2_gg[j+2]);
     F_gD_Conj2[i+2]=tmp;
@@ -585,7 +465,7 @@ for(i=0;i<ndimo;i++){
         //check these conditions again, I put them to speed up, may not work if initial settings change
         //if abs(dpI) <=1 and abs(dpI)==abs(dqI) and abs(M2-M1) <=2: #this is from the original LMSym Lee1994 code
         if(abs(K1-K2)<=2 && abs(M2-M1) <=2){
-            element=CMPLX(0.0,0.0);
+            element=0.0+0.0*I; //CMPLX(0.0,0.0);
             if(M1==M2 && dpS+dpI==0){//l=0 term
                 element+=CR_a(0,jK1,jK2,L1,L2,K1,K2,F_aD_Conj0,F_aD_Conj2,wig0,wig2,Lmax)*wig0[L1][L2][M1+Lmax][-M2+Lmax]* //Cw3jmatlab(L1,0,L2,M1,M2-M1,-M2)*
                          CAx_a(0,pI1,pI2,qI1,qI2,pS1,pS2,qS1,qS2,II); //*Cdlkm(0,dpS+dpI,M1-M2,0,psi,0);
@@ -642,7 +522,7 @@ for(i=0;i<ndimd;i++){
         //check these conditions again, I put them to speed up, may not work if initial settings change
         //if abs(dpI) <=1 and abs(dpI)==abs(dqI) and abs(M2-M1) <=2: #this is from the original LMSym Lee1994 code
         if(abs(K1-K2)<=2 && abs(M2-M1) <=2){
-            element=CMPLX(0.0,0.0);
+            element=0.0+0.0*I; //CMPLX(0.0,0.0);
             if(M1==M2 && dpS+dpI==0){//l=0 term
             element+=CR_a(0,jK1,jK2,L1,L2,K1,K2,F_aD_Conj0,F_aD_Conj2,wig0,wig2,Lmax)*wig0[L1][L2][M1+Lmax][-M2+Lmax]* //Cw3jmatlab(L1,0,L2,M1,M2-M1,-M2)*
                      CAx_a(0,pI1,pI2,qI1,qI2,pS1,pS2,qS1,qS2,II); //*Cdlkm(0,dpS+dpI,M1-M2,0,psi,0);

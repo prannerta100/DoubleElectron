@@ -16,7 +16,7 @@ def SpinHamiltonianSuperoperatorDiag(ind_arr, B0, psi, I, g, A, ald, bed, gad, a
 
     d2diff = {m1:{m2:dlkmC(2,m1,m2,ald,bed,gad) for m2 in range(-2,3)} for m1 in range(-2,3)}
     d2mag = {m1:{m2:dlkmC(2,m1,m2,alm,bem,gam) for m2 in range(-2,3)} for m1 in range(-2,3)}
-    d2diffmag = {m1:{m2:sum([d2diff[m1][mtmp] * d2mag[mtmp][m2] for mtmp in range(-2,3)]) for m2 in range(-2,3)} for m1 in range(-2,3)}
+    d2diffmag = {m1=:{m2:sum([d2diff[m1][mtmp] * d2mag[mtmp][m2] for mtmp in range(-2,3)]) for m2 in range(-2,3)} for m1 in range(-2,3)}
     f2_aa = {0:math.sqrt(2/3)*(A[2]-0.5*(A[0]+A[1])), -1:0, 1:0, -2:0.5*(A[0]-A[1]), 2:0.5*(A[0]-A[1])}
     f2_gg = {0:math.sqrt(2/3)*(g[2]-0.5*(g[0]+g[1]))/g0, -1:0, 1:0, -2:(g[0]-g[1])/(2*g0), 2:(g[0]-g[1])/(2*g0)}
     F_aD_Conj0 = np.conj(-sum(A)/math.sqrt(3))
